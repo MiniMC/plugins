@@ -33,7 +33,7 @@ public class KickListener implements Listener {
         String reason = BaseComponent.toLegacyText(event.getKickReasonComponent());
         event.setCancelled(true);
 
-        if(reason.contains("banned")) {
+        if(reason.contains("Banned")) {
             event.getPlayer().disconnect(event.getKickReasonComponent());
             return;
         }
