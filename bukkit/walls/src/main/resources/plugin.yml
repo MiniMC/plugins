@@ -1,0 +1,23 @@
+name: ${name}
+version: ${version}
+main: ${groupId}.${artifactId}.${name}Plugin
+description: ${description}
+api-version: 1.18
+author: ${author}
+depend: [WorldEdit]
+commands:
+    thewalls:
+        description: The admin command for TheWalls!
+        usage: /<command>
+        aliases: [tw]
+    start:
+        description: Vote for starting the game!
+        usage: /<command>
+        aliases: [vote]
+permissions:
+    thewalls.player:
+        description: Allows access to all the player commands
+        default: true
+    thewalls.admin:
+        description: Allows access to all the admin commands
+        default: op

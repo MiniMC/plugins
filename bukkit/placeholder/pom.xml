@@ -1,0 +1,75 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>org.thewalls</groupId>
+	<artifactId>thewallsexpansion</artifactId>
+	<version>0.0.1</version>
+	<packaging>jar</packaging>
+	<description>Placeholders for TheWalls!</description>
+	<name>TheWallsExpansion</name>
+
+	<properties>
+		<author>GSBRT</author>
+		<maven.compiler.source>16</maven.compiler.source>
+		<maven.compiler.target>16</maven.compiler.target>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+	<repositories>
+		<!--Spigot Repo -->
+		<repository>
+			<id>spigot-repo</id>
+			<url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+		</repository>
+		<repository>
+			<id>placeholderapi</id>
+			<url>https://repo.extendedclip.com/content/repositories/placeholderapi/</url>
+		</repository>
+	</repositories>
+	<dependencies>
+		<!--Spigot API -->
+		<dependency>
+			<groupId>org.spigotmc</groupId>
+			<artifactId>spigot-api</artifactId>
+			<version>1.18.1-R0.1-SNAPSHOT</version>
+			<scope>compile</scope>
+		</dependency>
+		<!--Spigot Annotation Processor -->
+		<dependency>
+			<groupId>org.spigotmc</groupId>
+			<artifactId>plugin-annotations</artifactId>
+			<version>1.2.2-SNAPSHOT</version>
+			<scope>provided</scope>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/junit/junit -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.13.1</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>me.clip</groupId>
+			<artifactId>placeholderapi</artifactId>
+			<version>2.11.1</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.thewalls</groupId>
+			<artifactId>utils</artifactId>
+			<version>0.0.3</version>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
+	<build>
+		<resources>
+			<resource>
+				<directory>${basedir}/src/main/resources</directory>
+				<filtering>true</filtering>
+				<includes>
+					<include>plugin.yml</include>
+				</includes>
+			</resource>
+		</resources>
+		<finalName>${project.name}</finalName>
+	</build>
+</project>

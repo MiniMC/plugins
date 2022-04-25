@@ -1,0 +1,5 @@
+name: Bans
+version: ${project.version}
+main: ${project.groupId}.bungee.BungeeMain
+author: GSBRT
+softDepends: [RedisBungee, LuckPerms]

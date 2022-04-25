@@ -1,0 +1,5 @@
+name: ConnectingPlayer
+main: org.minecraftparty.ConnectingPlayer.ConnectingPlayer
+version: 0.3
+
+author: GSBRT

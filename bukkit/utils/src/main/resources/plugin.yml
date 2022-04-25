@@ -1,0 +1,7 @@
+
+name: Utils
+version: ${version}
+main: org.thewalls.utils.WallsUtils
+description: ${description}
+api-version: 1.18
+author: GSBRT
