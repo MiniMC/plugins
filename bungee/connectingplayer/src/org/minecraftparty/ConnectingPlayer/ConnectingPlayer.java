@@ -10,6 +10,7 @@ import net.md_5.bungee.api.plugin.Plugin;
 import java.io.IOException;
 
 import org.minecraftparty.ConnectingPlayer.api.ConfigurationHandler;
+import org.minecraftparty.ConnectingPlayer.commands.CommandLink;
 import org.minecraftparty.ConnectingPlayer.commands.CommandLobby;
 import org.minecraftparty.ConnectingPlayer.commands.CommandWalls;
 
@@ -40,6 +41,7 @@ public class ConnectingPlayer extends Plugin {
         /* Init Commands */
         getProxy().getPluginManager().registerCommand(this, new CommandLobby(this));
         getProxy().getPluginManager().registerCommand(this, new CommandWalls(this));
+        getProxy().getPluginManager().registerCommand(this, new CommandLink(this));
         
         /* Init Listeners */
         getProxy().getPluginManager().registerListener(this, new PostLogin(this));

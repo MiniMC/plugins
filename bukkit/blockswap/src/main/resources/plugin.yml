@@ -1,0 +1,13 @@
+
+name: BlockSwap
+version: ${version}
+main: org.minimc.BlockSwap.Main
+description: ${description}
+api-version: 1.18
+author: GSBRT
+
+commands:
+  startBS:
+    description: starts the block shuffle game for all
+  stopBS:
+    description: ends the block shuffle challenge for all
