@@ -29,10 +29,10 @@ public class StartGameTask extends BukkitRunnable {
 		plugin.debug("Running start game task!");
 		arena.saveState();
 		arena.setStatus(Status.INGAME);
-		arena.broadcast(ChatColor.GRAY + "The game has started! You have 10 minutes before the walls disappear!");
+		arena.broadcast(ChatColor.GRAY + "The game has started! You have " + ChatColor.WHITE + "10" + ChatColor.GRAY + " minutes before the walls disappear!");
 		new DropWallsTask(plugin, 10, arena).runTaskTimer(plugin, 0, 20 * 60);
-		List<Player> players = arena.getPlayers();
 
+		List<Player> players = arena.getPlayers();
 		for (final Player player : players) {
 			Location location = player.getLocation();
 			location.getBlock().setType(Material.BEDROCK);

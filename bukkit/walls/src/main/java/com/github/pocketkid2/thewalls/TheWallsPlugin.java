@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Timer;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -31,6 +32,10 @@ public class TheWallsPlugin extends JavaPlugin {
 
 	@Override
 	public void onEnable() {
+		if( Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")){
+			new Placeholders().register();
+        }
+
 		ConfigurationSerialization.registerClass(Arena.class);
 		ConfigurationSerialization.registerClass(TheWallsRegion.class);
 
