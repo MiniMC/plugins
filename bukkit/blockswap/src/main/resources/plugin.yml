@@ -1,13 +1,12 @@
 
-name: BlockSwap
+name: BlockShuffle
 version: ${version}
-main: org.minimc.BlockSwap.Main
+main: org.minimc.BlockShuffle.BlockShuffle
 description: ${description}
 api-version: 1.18
 author: GSBRT
 
 commands:
-  startBS:
-    description: starts the block shuffle game for all
-  stopBS:
-    description: ends the block shuffle challenge for all
+  blockshuffle:
+    description: The main command for the BlockShuffle plugin.
+    aliases: [bs]

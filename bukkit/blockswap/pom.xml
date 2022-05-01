@@ -4,11 +4,11 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>org.minimc</groupId>
-	<artifactId>blockswap</artifactId>
+	<artifactId>BlockShuffle</artifactId>
 	<version>0.0.1</version>
 	<packaging>jar</packaging>
-	<description>BlockSwap</description>
-	<name>BlockSwap</name>
+	<description>BlockShuffle</description>
+	<name>BlockShuffle</name>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

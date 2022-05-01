@@ -364,7 +364,7 @@ public class Arena implements ConfigurationSerializable {
 
 	public void castVote(Player player) {
 		votes.add(player);
-		broadcast(ChatColor.GRAY + player.getDisplayName() + " has voted to start the game! (" + ChatColor.GOLD + votes.size() + ChatColor.GRAY + "/" + ChatColor.GOLD + players.size() + ChatColor.GRAY
+		broadcast(ChatColor.GRAY + player.getDisplayName() + " has voted to start the game! (" + ChatColor.WHITE + votes.size() + ChatColor.GRAY + "/" + ChatColor.WHITE + players.size() + ChatColor.GRAY
 				+ ")");
 		if ((votes.size() == players.size()) && (players.size() > 1)) {
 			beginGame();
