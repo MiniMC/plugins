@@ -5,11 +5,14 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.plugin.Plugin;
 
 import java.io.IOException;
+import java.util.Map;
 
 import org.minecraftparty.ConnectingPlayer.api.ConfigurationHandler;
+import org.minecraftparty.ConnectingPlayer.commands.CommandBlockShuffle;
 import org.minecraftparty.ConnectingPlayer.commands.CommandLink;
 import org.minecraftparty.ConnectingPlayer.commands.CommandLobby;
 import org.minecraftparty.ConnectingPlayer.commands.CommandWalls;
@@ -42,10 +45,18 @@ public class ConnectingPlayer extends Plugin {
         getProxy().getPluginManager().registerCommand(this, new CommandLobby(this));
         getProxy().getPluginManager().registerCommand(this, new CommandWalls(this));
         getProxy().getPluginManager().registerCommand(this, new CommandLink(this));
+        getProxy().getPluginManager().registerCommand(this, new CommandBlockShuffle(this));
         
         /* Init Listeners */
         getProxy().getPluginManager().registerListener(this, new PostLogin(this));
         getProxy().getPluginManager().registerListener(this, new KickListener(this));
+        getProxy().getPluginManager().registerListener(this, new Listeners());
+
+        Map<String, ServerInfo> servers = getInstance().getProxy().getServers();
+        for (ServerInfo server : servers.values()) {
+            getSubAPI().removeServer(server.getName());
+        }
+
     }
 
     @Override

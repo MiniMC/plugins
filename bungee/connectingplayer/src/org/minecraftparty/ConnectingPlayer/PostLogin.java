@@ -1,5 +1,6 @@
 package org.minecraftparty.ConnectingPlayer;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -9,6 +10,7 @@ import java.util.Random;
 import java.util.TreeMap;
 
 import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PostLoginEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
@@ -27,6 +29,35 @@ public class PostLogin implements Listener {
 
     @EventHandler
     public void onPostLogin(PostLoginEvent event) {
+        ProxiedPlayer player = event.getPlayer();
+        
+        try {
+            DiscordWebhook webhook = new DiscordWebhook("https://discord.com/api/webhooks/971752487721762866/twkktE46TGb4yWeo77-mSf8URUMjnJ4CLh3IpVJihndz2Y7ZqdDKVh99WR-c6SsK5R3W");
+            webhook.setContent("");
+            webhook.setAvatarUrl("https://cdn.minimc.nl/logo.png");
+            webhook.setUsername("MiniMC");
+            webhook.setTts(false);
+            webhook.addEmbed(new DiscordWebhook.EmbedObject()
+                .setTitle(player.getDisplayName() + " has connected")
+                .setDescription(
+                    "**IP: **`" + player.getSocketAddress() + "`\n" +
+                    "**Displayname: **`" + player.getDisplayName() + "`\n" +
+                    "**UUID: **`" + player.getUniqueId() + "`\n" +
+                    "**Ping: **`" + player.getPing() + "`\n" +
+                    "**Groups: **`" + player.getGroups() + "`\n" +
+                    "**Locale: **`" + player.getLocale() + "`\n" +
+                    "**Chat colors: **`" + player.hasChatColors() + "`\n" +
+                    "**Connected Server: **`" + player.getServer() + "`\n" +
+                    "**Permissions: **`" + player.getPermissions() + "`\n"
+                )
+                .setColor(Color.GREEN)
+                .setFooter("MiniMC", "https://cdn.minimc.nl/logo.png"));
+            webhook.execute();
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+
+
         Map<String, Server> servers = getConnectingPlayer().getSubAPI().getServers();
 
         /* Get all lobby servers */
@@ -34,6 +65,7 @@ public class PostLogin implements Listener {
         for (Server server : servers.values()) {
             try {
                 getConnectingPlayer().getSubAPI().getSubServer(server.getName()).setStopAction(StopAction.DELETE_SERVER);
+                getConnectingPlayer().getSubAPI().getSubServer(server.getName()).setLogging(false);
                 System.out.println("[ConnectingPlayer] server " + server.getName() + " has been marked for deletion at shutdown");
             } catch (Exception e) {
                 System.out.println(e);

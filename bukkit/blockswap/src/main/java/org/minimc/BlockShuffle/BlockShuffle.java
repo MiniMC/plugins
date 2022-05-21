@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -27,6 +28,10 @@ public class BlockShuffle extends JavaPlugin{
 	
 	public BukkitTask runnable;
 	public boolean blockShuffleEnabled = false;
+
+	public Integer count = 10;
+	public Boolean freezePlayers = true;
+	public Boolean gameStarted = false;
 	
 	private List<Player> votes = new ArrayList<Player>();
 
@@ -37,7 +42,7 @@ public class BlockShuffle extends JavaPlugin{
 	private Random random = new Random();
 	
 	private long previousShuffle = -1;
-	private final int SHUFFLE_TIME_MINUTES = 1;
+	private final int SHUFFLE_TIME_MINUTES = 5;
 	//private int previousCountdown = -1;
 	
 	private boolean countdownEnabled = false;
@@ -47,7 +52,7 @@ public class BlockShuffle extends JavaPlugin{
 		public void run() {
 			if(count < 1)this.cancel();
 			if(!countdownEnabled)this.cancel();
-			Bukkit.broadcastMessage(addPrefix("You have " + ChatColor.WHITE + count + ChatColor.GRAY + " seconds to stand on your block"));
+			Bukkit.broadcastMessage(addPrefix("The next round is in " + ChatColor.WHITE + count + ChatColor.GRAY + " seconds"));
 			count--;
 		};
 	};
@@ -61,6 +66,7 @@ public class BlockShuffle extends JavaPlugin{
 			Material.DIRT,
 			Material.OAK_LOG,
 			Material.OAK_LEAVES,
+			Material.BLAST_FURNACE,
 			Material.OAK_WOOD,
 			Material.BRICKS,
 			Material.DIAMOND_ORE,
@@ -95,7 +101,6 @@ public class BlockShuffle extends JavaPlugin{
 			Material.NETHER_BRICKS,
 			Material.NETHERRACK,
 			Material.GLOWSTONE,
-			Material.DIAMOND_ORE,
 			Material.GOLD_ORE,
 			Material.IRON_ORE,
 			Material.COAL_ORE,
@@ -106,6 +111,13 @@ public class BlockShuffle extends JavaPlugin{
 			Material.REDSTONE_BLOCK,
 			Material.HOPPER,
 			Material.COMPOSTER,
+			Material.ACACIA_PLANKS,
+			Material.ACACIA_WOOD,
+			Material.BIRCH_LOG,
+			Material.BROWN_STAINED_GLASS,
+			Material.STONE_SLAB,
+			Material.GRAVEL,
+			Material.CAKE,
 			Material.BEDROCK,
 			Material.STONE_SLAB,
 			Material.COBBLESTONE_SLAB,
@@ -115,6 +127,7 @@ public class BlockShuffle extends JavaPlugin{
 			Material.WATER,
 			Material.LAVA,
 			Material.HAY_BLOCK,
+			Material.DRIED_KELP_BLOCK,
 			Material.BELL,
 			Material.BLACK_WOOL,
 			Material.BLUE_WOOL,
@@ -122,8 +135,45 @@ public class BlockShuffle extends JavaPlugin{
 			Material.RED_WOOL,
 			Material.YELLOW_WOOL,
 			Material.GREEN_WOOL,
+			Material.MAGMA_BLOCK,
+			Material.ICE,
+			Material.PUMPKIN,
+			Material.MELON,
+			Material.ANVIL,
+			Material.GRAY_CONCRETE,
+			Material.CHEST,
+			Material.BARREL,
+			Material.FLETCHING_TABLE,
+			Material.CARTOGRAPHY_TABLE,
+			Material.GRINDSTONE,
+			Material.LOOM,
+			Material.FLOWER_POT,
+			Material.WHITE_BED,
+			Material.ORANGE_BED,
+			Material.MAGENTA_BED,
+			Material.OAK_SIGN,
+			Material.REDSTONE_LAMP,
+			Material.REDSTONE_BLOCK,
+			Material.GLASS,
+			Material.LAPIS_BLOCK,
+			Material.SMOOTH_STONE,
+			Material.IRON_BARS,
+			Material.IRON_BLOCK,
 			Material.LIME_WOOL,
 			Material.WHITE_WOOL,
+			Material.CRAFTING_TABLE,
+			Material.SMOKER,
+			Material.RAIL,
+			Material.JACK_O_LANTERN,
+			Material.BONE_BLOCK,
+			Material.JUNGLE_LEAVES,
+			Material.OAK_FENCE,
+			Material.CAULDRON,
+			Material.STONECUTTER,
+			Material.GRAVEL,
+			Material.REDSTONE_ORE,
+			Material.MOSSY_COBBLESTONE,
+			Material.FARMLAND,
 			Material.MAGENTA_WOOL,
 			Material.ORANGE_WOOL
 	}));
@@ -132,8 +182,8 @@ public class BlockShuffle extends JavaPlugin{
 	@Override
 	public void onEnable() {
 		BlockShuffle.instance = this;
-		this.getCommand("blockshuffle").setExecutor(new CommandBlockShuffle());
-		this.getCommand("blockshuffle").setTabCompleter(new CommandBlockShuffle());
+		this.getCommand("start").setExecutor(new CommandBlockShuffle());
+		this.getCommand("start").setTabCompleter(new CommandBlockShuffle());
 		for(Material mat : Material.values()) {
 			if(mat.name().startsWith("OAK") && mat.name().contains("BOAT"))
 				allowedMaterials.add(mat);	
@@ -154,6 +204,13 @@ public class BlockShuffle extends JavaPlugin{
 			"remote", 
 			"AJHSDGajkygdyiwugauiygsdjyGAJSYGDJYAGsdjy"
 		);
+		MySQL_Server.connect(
+			"een.minimc.nl", 
+			3306, 
+			"games", 
+			"remote", 
+			"AJHSDGajkygdyiwugauiygsdjyGAJSYGDJYAGsdjy"
+		);
 
 		TimerTask task = new TimerTask() {
 			public void run() {
@@ -164,26 +221,55 @@ public class BlockShuffle extends JavaPlugin{
 				"remote", 
 				"AJHSDGajkygdyiwugauiygsdjyGAJSYGDJYAGsdjy"
 				);
+
+				MySQL_Server.connect(
+				"een.minimc.nl", 
+				3306, 
+				"games", 
+				"remote", 
+				"AJHSDGajkygdyiwugauiygsdjyGAJSYGDJYAGsdjy"
+				);
 			}
 		};
 		Timer timer = new Timer("Timer");
 		timer.schedule(task, 120000);
 
 		getServer().getPluginManager().registerEvents(new Listeners(this), this);
+
+		/* Add game to database */
+		try {
+			PreparedStatement ps = MySQL_Server.getConnection().prepareStatement("INSERT IGNORE INTO blockshuffle (server_name) VALUES (?)");
+			ps.setString(1, Bukkit.getMotd());
+			ps.executeUpdate();
+		} catch (Exception e) {
+			System.out.println(e);
+		}
 	}
 	
 	@Override
 	public void onDisable() {
+		/* Remove game from database */
+		try {
+			PreparedStatement ps = MySQL_Server.getConnection().prepareStatement("DELETE FROM blockshuffle WHERE server_name = ?");
+			ps.setString(1, Bukkit.getMotd());
+			ps.executeUpdate();
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+
 		MySQL.disconnect();
 	}
-	
 	
 	public void startRunnable() {
 		runnable = new BukkitRunnable() {
 			@Override
 			public void run() {
 				if(blockShuffleEnabled) {
-					if(System.currentTimeMillis() - previousShuffle > SHUFFLE_TIME_MINUTES * 60000){
+/* 					if (System.currentTimeMillis() - previousShuffle > (SHUFFLE_TIME_MINUTES * 60000) - 10000) {
+						startCountdown();
+					} */
+
+					if (System.currentTimeMillis() - previousShuffle > SHUFFLE_TIME_MINUTES * 60000){
 						// When a new round starts
 						previousShuffle = System.currentTimeMillis();
 						
@@ -207,8 +293,8 @@ public class BlockShuffle extends JavaPlugin{
 									PreparedStatement getPlayer = MySQL.getConnection().prepareStatement("SELECT * FROM blockshuffle_players WHERE uuid = ?");
 									getPlayer.setString(1, all.getUniqueId().toString());
 									ResultSet rs = getPlayer.executeQuery();
-									if (rs.next()) {
-										PreparedStatement insertPlayer = MySQL.getConnection().prepareStatement("UPDATE walls_players SET uuid=?, name=?, loses=?, blocks_found=?, deaths=?, xp=? WHERE uuid=?");
+									if (rs.next() == true) {
+										PreparedStatement insertPlayer = MySQL.getConnection().prepareStatement("UPDATE blockshuffle_players SET uuid=?, name=?, loses=?, blocks_found=?, deaths=?, xp=? WHERE uuid=?");
 										insertPlayer.setString(1, all.getUniqueId().toString());
 										insertPlayer.setString(2, all.getName());
 										insertPlayer.setInt(3, rs.getInt("loses") + 1);
@@ -255,8 +341,8 @@ public class BlockShuffle extends JavaPlugin{
 									PreparedStatement getPlayer = MySQL.getConnection().prepareStatement("SELECT * FROM blockshuffle_players WHERE uuid = ?");
 									getPlayer.setString(1, p.getUniqueId().toString());
 									ResultSet rs = getPlayer.executeQuery();
-									if (rs.next()) {
-										PreparedStatement insertPlayer = MySQL.getConnection().prepareStatement("UPDATE walls_players SET uuid=?, name=?, wins=?, blocks_found=?, deaths=?, xp=? WHERE uuid=?");
+									if (rs.next() == true) {
+										PreparedStatement insertPlayer = MySQL.getConnection().prepareStatement("UPDATE blockshuffle_players SET uuid=?, name=?, wins=?, blocks_found=?, deaths=?, xp=? WHERE uuid=?");
 										insertPlayer.setString(1, p.getUniqueId().toString());
 										insertPlayer.setString(2, p.getName());
 										insertPlayer.setInt(3, rs.getInt("wins") + 1);
@@ -281,6 +367,14 @@ public class BlockShuffle extends JavaPlugin{
 								} catch (Exception e) {
 									System.out.println(e);
 								}
+								try {
+									Bukkit.broadcastMessage(addPrefix("This game will close in " + ChatColor.WHITE + "30" + ChatColor.GRAY +" seconds"));
+									TimeUnit.SECONDS.sleep(30);
+									Bukkit.getServer().shutdown();
+								} catch (Exception e) {
+									System.out.print(e);
+									Bukkit.getServer().shutdown();
+								}
 								break;
 							}
 							return;
@@ -303,9 +397,6 @@ public class BlockShuffle extends JavaPlugin{
 							
 					
 						}
-					}else if(System.currentTimeMillis() - previousShuffle > (SHUFFLE_TIME_MINUTES * 60000) - 10000 && !countdownEnabled) {
-						startCountdown();
-						countdownEnabled = true;
 					}
 					
 					boolean found = true;
@@ -324,18 +415,32 @@ public class BlockShuffle extends JavaPlugin{
 					
 					if(found) {
 						previousShuffle = -1;
-						countdownEnabled = false;
 					}
 				}
 			}}.runTaskTimer(this, 0, 5);
 	}
 	
 	public void startGame() {
+		try {
+			PreparedStatement ps = MySQL_Server.getConnection().prepareStatement("UPDATE blockshuffle SET status='playing' WHERE server_name=?");
+			ps.setString(1, Bukkit.getMotd());
+			ps.executeUpdate();
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+
+		freezePlayers = false;
 		playersInGame.clear();
 		for(Player all : Bukkit.getOnlinePlayers())
 			playersInGame.put(all, new PlayerState());
 		blockShuffleEnabled = true;
 		previousShuffle = -1;
+		gameStarted = true;
+
+		for (final Player player : Bukkit.getOnlinePlayers()) {
+			Bukkit.getServer().setWhitelist(true);
+			player.setGameMode(GameMode.SURVIVAL);
+		}
 	}
 	
 	public void startCountdown() {	
@@ -379,10 +484,14 @@ public class BlockShuffle extends JavaPlugin{
 	}
 
 	public void castVote(Player player) {
-		votes.add(player);
-		Bukkit.broadcastMessage(addPrefix(ChatColor.WHITE + player.getDisplayName() + ChatColor.GRAY + " has voted to start the game! (" + ChatColor.WHITE + votes.size() + ChatColor.GRAY + "/" + ChatColor.WHITE + Bukkit.getOnlinePlayers().size() + ChatColor.GRAY + ")"));
-		if ((votes.size() == Bukkit.getOnlinePlayers().size()) && (Bukkit.getOnlinePlayers().size() > 1)) {
-			startGame();
+		if (gameStarted == false) {
+			votes.add(player);
+			Bukkit.broadcastMessage(addPrefix(ChatColor.WHITE + player.getDisplayName() + ChatColor.GRAY + " has voted to start the game! (" + ChatColor.WHITE + votes.size() + ChatColor.GRAY + "/" + ChatColor.WHITE + Bukkit.getOnlinePlayers().size() + ChatColor.GRAY + ")"));
+			if ((votes.size() == Bukkit.getOnlinePlayers().size()) && (Bukkit.getOnlinePlayers().size() > 1)) {
+				startGame();
+			}
+		} else {
+			player.sendMessage(addPrefix("This game has already started!"));
 		}
 	}
 
@@ -416,5 +525,9 @@ public class BlockShuffle extends JavaPlugin{
 		}
 
 		player.sendMessage(addPrefix(ChatColor.GREEN + "You recieved " + ChatColor.WHITE + amount + " XP" + ChatColor.GREEN + " for " + reason));
+	}
+
+	public void debug(String message) {
+		System.out.println("[Debug]: " + message);
 	}
 }
